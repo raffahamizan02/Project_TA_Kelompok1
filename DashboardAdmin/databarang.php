@@ -1,0 +1,18 @@
+<?php
+$pageTitle='Data Barang';$activePage='barang';require_once __DIR__.'/partials/header.php';
+$q=trim($_GET['q']??'');$status=trim($_GET['status']??'');
+$sql="SELECT b.id_barang,b.id_user,b.nama_barang,b.no_loker,b.tgl_simpan,b.status,COALESCE(u.nama_lengkap,'Tidak diketahui') pemilik FROM barang b LEFT JOIN users u ON u.id_user=b.id_user WHERE 1=1";
+$params=[];$types='';
+if($q!==''){$sql.=" AND (b.nama_barang LIKE ? OR u.nama_lengkap LIKE ? OR CAST(b.no_loker AS CHAR) LIKE ?)";$like="%$q%";$params=[$like,$like,$like];$types='sss';}
+if(in_array($status,['Tersimpan','Diambil'],true)){$sql.=" AND b.status=?";$params[]=$status;$types.='s';}$sql.=" ORDER BY b.id_barang DESC";
+$stmt=$koneksi->prepare($sql);if($types!=='')$stmt->bind_param($types,...$params);$stmt->execute();$data=$stmt->get_result();
+?>
+<?php if(isset($_GET['success'])):?><div class="notice notice-success"><i class="fa-solid fa-circle-check"></i> <?=e($_GET['success'])?></div><?php endif;?>
+<?php if(isset($_GET['error'])):?><div class="notice notice-danger"><i class="fa-solid fa-circle-exclamation"></i> <?=e($_GET['error'])?></div><?php endif;?>
+<div class="panel"><div class="panel-head"><div><h2>Kelola Data Barang</h2><p>Tambah, cari, ubah, dan hapus data barang loker.</p></div><a href="../DataBarang/create.php" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Tambah Barang</a></div>
+<div class="panel-body"><form method="get" class="toolbar no-print"><input class="search-input" type="search" name="q" value="<?=e($q)?>" placeholder="Cari barang, pemilik, nomor loker..."><select class="filter-select" name="status"><option value="">Semua Status</option><option value="Tersimpan" <?=$status==='Tersimpan'?'selected':''?>>Tersimpan</option><option value="Diambil" <?=$status==='Diambil'?'selected':''?>>Diambil</option></select><button class="btn btn-light" type="submit"><i class="fa-solid fa-filter"></i> Filter</button><a class="btn btn-light" href="databarang.php">Reset</a></form></div>
+<div class="table-wrap"><table><thead><tr><th>No</th><th>ID</th><th>Pemilik</th><th>Nama Barang</th><th>No. Loker</th><th>Tanggal Simpan</th><th>Status</th><th class="no-print">Aksi</th></tr></thead><tbody>
+<?php if($data->num_rows):$no=1;while($row=$data->fetch_assoc()):?><tr><td><?=$no++?></td><td>#<?=e($row['id_barang'])?></td><td><b><?=e($row['pemilik'])?></b></td><td><?=e($row['nama_barang'])?></td><td><span class="badge badge-neutral">Loker #<?=e($row['no_loker'])?></span></td><td><?=e(date('d/m/Y H:i',strtotime($row['tgl_simpan'])))?></td><td><span class="badge <?=$row['status']==='Tersimpan'?'badge-success':'badge-neutral'?>"><?=e($row['status'])?></span></td><td class="no-print"><div class="table-actions"><a class="icon-btn edit" href="../DataBarang/update.php?id=<?=e($row['id_barang'])?>" title="Edit"><i class="fa-solid fa-pen"></i></a><form method="post" action="../DataBarang/delete.php" data-confirm-delete="<?=e($row['nama_barang'])?>"><input type="hidden" name="csrf_token" value="<?=e(csrf_token())?>"><input type="hidden" name="id_barang" value="<?=e($row['id_barang'])?>"><button class="icon-btn delete" type="submit" title="Hapus"><i class="fa-solid fa-trash"></i></button></form></div></td></tr>
+<?php endwhile;else:?><tr><td colspan="8"><div class="empty-state"><i class="fa-regular fa-folder-open"></i>Data barang tidak ditemukan.</div></td></tr><?php endif;?>
+</tbody></table></div></div>
+<?php require_once __DIR__.'/partials/footer.php';?>

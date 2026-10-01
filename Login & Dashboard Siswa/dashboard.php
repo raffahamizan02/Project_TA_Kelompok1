@@ -7,6 +7,10 @@ if (!isset($_SESSION['id_user'])) {
     header("Location: login.php");
     exit();
 }
+if (($_SESSION['role'] ?? '') === 'admin') {
+    header("Location: ../DashboardAdmin/beranda.php");
+    exit();
+}
 
 $id_user      = $_SESSION['id_user'];
 $nama_lengkap = $_SESSION['nama_lengkap'] ?? 'User';

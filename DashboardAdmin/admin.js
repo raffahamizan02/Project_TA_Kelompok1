@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('[data-confirm-delete]').forEach(form=>form.addEventListener('submit',e=>{const name=form.getAttribute('data-confirm-delete')||'data ini';if(!confirm('Hapus '+name+'? Tindakan ini tidak dapat dibatalkan.'))e.preventDefault();}));});

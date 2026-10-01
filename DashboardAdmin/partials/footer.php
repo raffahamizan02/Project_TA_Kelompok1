@@ -1,0 +1,1 @@
+</main><footer class="page-footer"><span>&copy; 2026 LOKIFY - Sistem Pendataan Barang di Loker Sekolah</span><span>PHP &amp; MySQL</span></footer></div></div><script src="admin.js"></script></body></html>

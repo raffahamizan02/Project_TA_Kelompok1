@@ -1,0 +1,17 @@
+<?php
+$pageTitle='Laporan';$activePage='laporan';require_once __DIR__.'/partials/header.php';
+$dari=trim($_GET['dari']??'');$sampai=trim($_GET['sampai']??'');$status=trim($_GET['status']??'');
+$sql="SELECT b.id_barang,b.nama_barang,b.no_loker,b.tgl_simpan,b.status,COALESCE(u.nama_lengkap,'Tidak diketahui') pemilik FROM barang b LEFT JOIN users u ON u.id_user=b.id_user WHERE 1=1";$params=[];$types='';
+if($dari!==''&&preg_match('/^\d{4}-\d{2}-\d{2}$/',$dari)){$sql.=" AND b.tgl_simpan>=?";$params[]=$dari.' 00:00:00';$types.='s';}
+if($sampai!==''&&preg_match('/^\d{4}-\d{2}-\d{2}$/',$sampai)){$sql.=" AND b.tgl_simpan<=?";$params[]=$sampai.' 23:59:59';$types.='s';}
+if(in_array($status,['Tersimpan','Diambil'],true)){$sql.=" AND b.status=?";$params[]=$status;$types.='s';}$sql.=" ORDER BY b.tgl_simpan DESC,b.id_barang DESC";
+$stmt=$koneksi->prepare($sql);if($types!=='')$stmt->bind_param($types,...$params);$stmt->execute();$data=$stmt->get_result();$export=http_build_query(['dari'=>$dari,'sampai'=>$sampai,'status'=>$status]);
+?>
+<div class="panel"><div class="panel-head no-print"><div><h2>Filter Laporan</h2><p>Gunakan periode dan status untuk menyaring data.</p></div><div class="toolbar"><a href="export_laporan.php?<?=e($export)?>" class="btn btn-success"><i class="fa-solid fa-file-csv"></i> Export CSV</a><button type="button" class="btn btn-light" onclick="window.print()"><i class="fa-solid fa-print"></i> Cetak</button></div></div>
+<div class="panel-body no-print"><form method="get" class="filter-form"><input class="filter-select" type="date" name="dari" value="<?=e($dari)?>"><input class="filter-select" type="date" name="sampai" value="<?=e($sampai)?>"><select class="filter-select" name="status"><option value="">Semua Status</option><option value="Tersimpan" <?=$status==='Tersimpan'?'selected':''?>>Tersimpan</option><option value="Diambil" <?=$status==='Diambil'?'selected':''?>>Diambil</option></select><button class="btn btn-primary">Tampilkan</button><a href="laporan.php" class="btn btn-light">Reset</a></form></div>
+<div class="panel-body print-only"><h2 style="margin:0 0 5px">Laporan Pendataan Barang Loker</h2><div style="font-size:11px;color:#718096">SMK PGRI 3 Malang - Sistem LOKIFY</div></div>
+<div class="panel-body"><div class="report-meta"><div class="meta-box"><small>Total Hasil</small><strong><?=$data->num_rows?></strong></div><div class="meta-box"><small>Periode</small><strong><?=e($dari?:'Semua')?> s/d <?=e($sampai?:'Semua')?></strong></div><div class="meta-box"><small>Status</small><strong><?=e($status?:'Semua')?></strong></div></div></div>
+<div class="table-wrap"><table><thead><tr><th>No</th><th>ID</th><th>Pemilik</th><th>Nama Barang</th><th>No. Loker</th><th>Tanggal Simpan</th><th>Status</th></tr></thead><tbody>
+<?php if($data->num_rows):$no=1;while($row=$data->fetch_assoc()):?><tr><td><?=$no++?></td><td>#<?=e($row['id_barang'])?></td><td><?=e($row['pemilik'])?></td><td><?=e($row['nama_barang'])?></td><td>Loker #<?=e($row['no_loker'])?></td><td><?=e(date('d/m/Y H:i',strtotime($row['tgl_simpan'])))?></td><td><span class="badge <?=$row['status']==='Tersimpan'?'badge-success':'badge-neutral'?>"><?=e($row['status'])?></span></td></tr><?php endwhile;else:?><tr><td colspan="7"><div class="empty-state"><i class="fa-regular fa-file-lines"></i>Tidak ada data untuk filter yang dipilih.</div></td></tr><?php endif;?>
+</tbody></table></div></div>
+<?php require_once __DIR__.'/partials/footer.php';?>

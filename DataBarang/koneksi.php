@@ -1,16 +1,6 @@
 <?php
-$host   = "localhost";
-$user   = "root";
-$pass   = "";
-$db     = "db_barang";
-$port   = 3307;
-
-$conn = mysqli_connect($host, $user, $pass, $db, $port);
-
-if ($conn) {
-    echo "Koneksi Database Berhasil";
-} else {
-    echo "Koneksi Database Gagal" . mysqli_connect_error();
-}
-
+$host="localhost";$user="root";$pass="";$db="db_ta";$port=3307;
+$koneksi=mysqli_connect($host,$user,$pass,$db,$port);
+if(!$koneksi){http_response_code(500);die("Koneksi database gagal: ".mysqli_connect_error());}
+mysqli_set_charset($koneksi,"utf8mb4");
 ?>

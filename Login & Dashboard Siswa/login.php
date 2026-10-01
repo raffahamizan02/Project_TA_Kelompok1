@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['username']     = $user['username'];
                     $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
                     $_SESSION['role']         = $user['role'];
-                    header("Location: dashboard.php");
+                    header("Location: " . ($user['role'] === 'admin' ? "../DashboardAdmin/beranda.php" : "dashboard.php"));
                     exit();
                 } else { 
                     $error_msg = "Password yang Anda masukkan salah!"; 
