@@ -16,7 +16,7 @@ $gedung_aktif = $gedung_aktif ?? 'Gedung A';
             
             <li class="nav-item">
                 <a href="javascript:void(0);" onclick="toggleGedungMenu()" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fa-solid fa-gauge"></i> Dashboard <?php echo ($role === 'admin') ? 'Admin' : 'Siswa'; ?></span>
+                    <span><i class="fa-solid fa-gauge"></i> Dashboard Siswa</span>
                     <i class="fa-solid fa-chevron-down arrow-icon-menu" id="arrowGedung"></i>
                 </a>
             </li>

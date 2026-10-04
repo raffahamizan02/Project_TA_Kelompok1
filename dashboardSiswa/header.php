@@ -18,8 +18,8 @@ $page_title = $page_title ?? 'Dashboard';
     :root {
         --sidebar-width: 250px;
         --sidebar-collapsed-width: 70px;
-        --accent-color: <?php echo ($role === 'admin') ? '#AFDDFF' : '#FF9149'; ?>;
-        --accent-text: <?php echo ($role === 'admin') ? '#0f233a' : '#ffffff'; ?>;
+        --accent-color: #FF9149;
+        --accent-text: #ffffff;
     }
 
     body { background-color: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
@@ -121,15 +121,14 @@ $page_title = $page_title ?? 'Dashboard';
     .btn-secondary { background: #e2e8f0; color: #334155; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
     .btn-secondary:hover { background: #cbd5e1; }
 
-    /* RESPONSIVE MOBILE */
+    /* RESPONSIVE */
     @media (max-width: 768px) {
         .sidebar { position: fixed; left: -250px; z-index: 999; height: 100vh; box-shadow: 2px 0 10px rgba(0,0,0,0.2); transition: left 0.3s ease; }
         body.sidebar-mobile-open .sidebar { left: 0; }
         .main-wrapper { margin-left: 0 !important; }
         .stats-row { flex-direction: column; }
         .stat-card { min-width: 100%; }
-        .modal-box { width: 95% !important; }
-        .modal-box.modal-large { width: 95% !important; }
+        .modal-box, .modal-box.modal-large { width: 95% !important; }
         .content-area { padding: 15px; }
         .top-header { padding: 10px 15px; }
         .page-title { font-size: 14px; }
@@ -153,11 +152,7 @@ $page_title = $page_title ?? 'Dashboard';
         <div class="profile-dropdown-container" id="profileDropdownContainer">
             <div class="profile-btn" onclick="toggleDropdown()">
                 <div class="avatar-circle">
-                    <?php if (!empty($foto_user) && file_exists('uploads/' . $foto_user)): ?>
-                        <img src="uploads/<?php echo htmlspecialchars($foto_user); ?>" alt="Profil">
-                    <?php else: ?>
-                        <?php echo $inisial; ?>
-                    <?php endif; ?>
+                    <?php echo $inisial; ?>
                 </div>
                 <div class="user-details">
                     <div class="user-name"><?php echo htmlspecialchars($nama_lengkap); ?></div>
@@ -174,7 +169,7 @@ $page_title = $page_title ?? 'Dashboard';
                 <a href="javascript:void(0);" onclick="openModalProfile()" class="dropdown-item">
                     <i class="fa-solid fa-id-card"></i> Edit Profil
                 </a>
-                <a href="../login/logout.php" class="dropdown-item logout-item">
+                <a href="#" onclick="event.preventDefault(); Swal.fire({icon:'info',title:'Info',text:'Logout akan aktif setelah integrasi backend.'});" class="dropdown-item logout-item">
                     <i class="fa-solid fa-right-from-bracket"></i> Keluar
                 </a>
             </div>

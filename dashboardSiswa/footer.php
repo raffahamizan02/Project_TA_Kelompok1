@@ -59,8 +59,8 @@ function closeModalHistory() {
     if (m) m.style.display = 'none';
 }
 
-/* KONFIRMASI AMBIL BARANG (TANPA ICON TANDA TANYA) */
-function konfirmasiAmbil(url, noLoker) {
+/* KONFIRMASI AMBIL BARANG (TAMPILAN ONLY) */
+function konfirmasiAmbil(noLoker) {
     Swal.fire({
         title: 'Ambil Barang?',
         html: `Anda akan mengambil barang dari loker <strong style="color:#FF9149;">${noLoker}</strong>.`,
@@ -72,7 +72,12 @@ function konfirmasiAmbil(url, noLoker) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = url;
+            Swal.fire({
+                icon: 'info',
+                title: 'Fitur Belum Aktif',
+                text: 'Ambil barang akan aktif setelah integrasi backend.',
+                confirmButtonColor: '#FF9149'
+            });
         }
     });
 }
@@ -82,38 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const arrow   = document.getElementById("arrowGedung");
     if (subMenu) subMenu.style.display = "block";
     if (arrow) arrow.style.transform = "rotate(180deg)";
-
-    /* AUTO TOAST dari flash message */
-    const alertSuccess = document.querySelector('.alert-success');
-    const alertDanger  = document.querySelector('.alert-danger');
-    
-    if (alertSuccess) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            html: alertSuccess.innerText,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-        alertSuccess.style.display = 'none';
-    }
-    
-    if (alertDanger) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal!',
-            html: alertDanger.innerText,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 4000,
-            timerProgressBar: true
-        });
-        alertDanger.style.display = 'none';
-    }
 
     /* Tutup dropdown profile kalau klik di luar */
     window.addEventListener('click', (event) => {
