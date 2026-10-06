@@ -1,5 +1,5 @@
 <?php
-include "koneksi.php";
+include "connectBarang.php";
 
 if (!isset($_SESSION['login']) || $_SESSION['login'] != true) {
     header("location: ../login/login.php?p=Silakan login terlebih dahulu!");
@@ -23,8 +23,7 @@ if ($cari != "") {
 }
 
 $data = mysqli_query($koneksi, "SELECT b.*, s.nama, l.kode_loker FROM barang b JOIN siswa s ON b.id_siswa = s.id
-    JOIN loker l ON b.id_loker = l.id_loker $where ORDER BY b.id_barang DESC
-");
+    JOIN loker l ON b.id_loker = l.id_loker $where ORDER BY b.id_barang DESC");
 ?>
 <!DOCTYPE html>
 <html>
