@@ -13,10 +13,10 @@ $id = $_GET['id_loker'];
 //proses hapus
 $hapus = mysqli_query($koneksi, "DELETE FROM loker WHERE id_loker='$id'");
 if ($hapus) {
-    header("location: index.php?pesan=hapus");
+    header("location: loker.php?pesan=hapus");
     exit();
 } else {
-    header("location: index.php?pesan=Gagal Loker data!");
+    header("location: loker.php?pesan=Gagal Loker data!");
     exit();
 }
 ?>

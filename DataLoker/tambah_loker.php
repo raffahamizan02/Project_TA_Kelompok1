@@ -20,7 +20,7 @@ if (isset($_POST['simpan'])) {
 
     if (!in_array($_POST['lokasi'], $gedung_valid, true)) {
 
-        header("Location: index.php");
+        header("Location: loker.php");
         exit();
 
     }
@@ -38,7 +38,7 @@ if (isset($_POST['simpan'])) {
 
         echo "<script>
                 alert('Kode Loker sudah digunakan!');
-                window.location.href='index.php';
+                window.location.href='loker.php';
               </script>";
 
         exit();
@@ -62,7 +62,7 @@ if (isset($_POST['simpan'])) {
 
     if ($simpan) {
 
-        header("Location: index.php?pesan=tambah");
+        header("Location: loker.php?pesan=tambah");
         exit();
 
     } else {
@@ -75,7 +75,7 @@ if (isset($_POST['simpan'])) {
 } else {
 
     // Jika tambah_loker.php dibuka langsung
-    header("Location: index.php");
+    header("Location: loker.php");
     exit();
 
 }

@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Hilangkan ?pesan=... dari URL supaya toast
     // tidak muncul lagi saat halaman di-refresh
     if (pesan) {
-        window.history.replaceState({}, document.title, "index.php");
+        window.history.replaceState({}, document.title, "loker.php");
     }
 
 });

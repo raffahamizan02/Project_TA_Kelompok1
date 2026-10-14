@@ -22,7 +22,7 @@ if (isset($_POST['edit'])) {
 
     if (!in_array($_POST['lokasi'], $gedung_valid, true)) {
 
-        header("Location: index.php");
+        header("Location: loker.php");
         exit();
 
     }
@@ -39,7 +39,7 @@ if (isset($_POST['edit'])) {
 
         echo "<script>
                 alert('Nomor Loker sudah digunakan!');
-                window.location.href='index.php';
+                window.location.href='loker.php';
               </script>";
         exit();
 
@@ -58,7 +58,7 @@ if (isset($_POST['edit'])) {
     if ($update) {
 
         // Kembali ke dashboard
-        header("Location: index.php?pesan=edit");
+        header("Location: loker.php?pesan=edit");
         exit();
 
     } else {
@@ -70,7 +70,7 @@ if (isset($_POST['edit'])) {
 } else {
 
     // Jika file dibuka langsung
-    header("Location: index.php");
+    header("Location: loker.php");
     exit();
 
 }
