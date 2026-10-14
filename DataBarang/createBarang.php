@@ -1,48 +1,53 @@
 <?php
-include "connectBarang.php";
+require_once "connectBarang.php";
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-$queryLoker = mysqli_query($koneksi, "SELECT * FROM loker ORDER BY nomor_loker ASC");
-
+$queryLoker = mysqli_query($koneksi, "SELECT id_loker, nomor_loker, lokasi FROM loker ORDER BY nomor_loker ASC");
 $querySiswa = mysqli_query($koneksi, "SELECT id_user, nama_lengkap, username FROM users WHERE role = 'siswa' ORDER BY nama_lengkap ASC");
+$id_siswa_login =$_SESSION['id_user'] ?? '';
 
-$id_siswa_login = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : '';
+$opsiBarang = [
+    "Tas Ransel"  => "Tas Ransel",
+    "Jaket"       => "Jaket / Hoodie",
+    "Helm"        => "Helm",
+    "Laptop"      => "Laptop / Gadget",
+    "Sepatu"      => "Sepatu",
+    "Buku"        => "Buku / Modul",
+    "Botol Minum" => "Botol Minum",
+    "Lainnya"     => "Lainnya (Ketik Sendiri)"
+];
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Data Barang - Penitipan Loker</title>
+    <title>Tambah Data Barang</title>
     <link rel="stylesheet" href="styleBarang.css">
 </head>
 <body>
 
 <div class="container">
-
     <div class="header-box">
-        <div>
-            <h1>Tambah Penitipan Barang</h1>
-            <p>Masukkan data barang bawaan siswa yang akan dititipkan ke dalam loker</p>
-        </div>
-        <a href="indexBarang.php" class="btn btn-secondary">← Kembali ke Daftar</a>
+        <h2>Tambah Penitipan Barang</h2>
     </div>
 
-    <?php if (isset($_GET['pesan']) && $_GET['pesan'] == 'error'): ?>
+    <?php if (($_GET['pesan'] ?? '') === 'error'): ?>
         <div class="alert alert-danger">
-            <strong>Gagal Menyimpan:</strong> <?php echo htmlspecialchars($_GET['teks'] ?? 'Data tidak lengkap atau format tidak sesuai.'); ?>
+            <?= htmlspecialchars($_GET['teks'] ?? 'Terjadi kesalahan pada data input.') ?>
         </div>
     <?php endif; ?>
 
     <div class="card">
-        <form action="saveBarang.php" method="POST" enctype="multipart/form-data" id="formTambahBarang">
+        <form action="saveBarang.php" method="POST" enctype="multipart/form-data">
 
             <div class="form-group">
-                <label for="id_siswa">Siswa Pemilik Barang:</label>
+                <label for="id_siswa">Siswa Pemilik:</label>
                 <select name="id_siswa" id="id_siswa" class="form-control" required>
-                    <option value="">-- Pilih Siswa Penitip --</option>
-                    <?php while ($siswa = mysqli_fetch_assoc($querySiswa)): ?>
-                        <option value="<?php echo $siswa['id_user']; ?>" <?php echo ($id_siswa_login == $siswa['id_user']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($siswa['nama_lengkap']); ?> (NIS/Username: <?php echo htmlspecialchars($siswa['username']); ?>)
+                    <option value="">Pilih Siswa</option>
+                    <?php while ($s = mysqli_fetch_assoc($querySiswa)): ?>
+                        <option value="<?= $s['id_user'] ?>" <?= ($id_siswa_login ==$s['id_user']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars("{$s['nama_lengkap']} (NIS: {$s['username']})") ?>
                         </option>
                     <?php endwhile; ?>
                 </select>
@@ -51,43 +56,39 @@ $id_siswa_login = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : '';
             <div class="form-group">
                 <label for="id_loker">Loker Tujuan:</label>
                 <select name="id_loker" id="id_loker" class="form-control" required>
-                    <option value="">-- Pilih Loker --</option>
-                    <?php while ($loker = mysqli_fetch_assoc($queryLoker)): ?>
-                        <option value="<?php echo $loker['id_loker']; ?>">
-                            Loker <?php echo htmlspecialchars($loker['nomor_loker']); ?> - Lokasi: <?php echo htmlspecialchars($loker['lokasi']); ?> (Status: <?php echo htmlspecialchars($loker['status']); ?>)
+                    <option value="">Pilih Loker</option>
+                    <?php while ($l = mysqli_fetch_assoc($queryLoker)): ?>
+                        <option value="<?= $l['id_loker'] ?>">
+                            Loker <?= htmlspecialchars("{$l['nomor_loker']} - Lokasi: {$l['lokasi']}") ?>
                         </option>
                     <?php endwhile; ?>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="pilihan_barang">Barang yang Dititipkan:</label>
-                <select name="pilihan_barang" id="pilihan_barang" class="form-control" required onchange="cekPilihanBarang()">
-                    <option value="">-- Pilih Nama Barang --</option>
-                    <option value="Tas Ransel">Tas Ransel</option>
-                    <option value="Jaket / Hoodie">Jaket / Hoodie</option>
-                    <option value="Helm Sepeda Motor">Helm</option>
-                    <option value="Laptop / Perangkat Elektronik">Laptop / Perangkat Elektronik</option>
-                    <option value="Sepatu / Sandal">Sepatu / Sandal</option>
-                    <option value="Buku / Dokumen">Buku Tulis / Buku Paket</option>
-                    <option value="Botol Minum / Tumbler">Botol Minum</option>
-                    <option value="Lainnya">Lainnya (Ketik Sendiri)</option>
-                </select>
+                <label for="foto_barang">Foto Barang Bawaan:</label>
+                <input type="file" name="foto_barang" id="foto_barang" class="form-control" accept="image/*" required>
             </div>
 
-            <div class="form-group" id="boxBarangCustom" style="display: none;">
-                <label for="nama_barang_custom">Nama Barang Custom: <small style="color: #dc2626;">*Wajib diisi jika memilih Lainnya</small></label>
-                <input type="text" name="nama_barang_custom" id="nama_barang_custom" class="form-control" maxlength="100" placeholder="Ketik nama barang yang dibawa siswa...">
-            </div>
+            <hr class="divider">
 
             <div class="form-group">
-                <label for="foto_barang">Foto Barang Bawaan:</label>
-                <input type="file" name="foto_barang" id="foto_barang" class="form-control" accept="image/*" required onchange="previewFoto(event)">
-                
-                <div class="image-preview-box" id="previewBox">
-                    <span id="previewText" style="color: #94a3b8; font-size: 13px;">Pratinjau foto barang akan muncul di sini</span>
-                    <img id="previewImage" src="" alt="Pratinjau Foto" style="display: none;">
+                <label>Daftar Barang Bawaan:</label>
+                <div id="daftarBarang">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <div class="barang-item-box">
+                            <label>Barang <?= $i ?> (Wajib):</label>
+                            <select name="pilihan_barang[]" class="form-control" onchange="cekLainnya(this)" required>
+                                <option value="">Pilih Barang</option>
+                                <?php foreach ($opsiBarang as $val =>$label): ?>
+                                    <option value="<?= $val ?>"><?= $label ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="text" name="nama_barang_custom[]" class="form-control input-custom" placeholder="Ketik nama barang...">
+                        </div>
+                    <?php endfor; ?>
                 </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="tambahBarang()">+ Tambah Barang</button>
             </div>
 
             <div class="form-actions">
@@ -97,38 +98,47 @@ $id_siswa_login = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : '';
 
         </form>
     </div>
-
 </div>
 
 <script>
-function cekPilihanBarang() {
-    var pilihan = document.getElementById("pilihan_barang").value;
-    var boxCustom = document.getElementById("boxBarangCustom");
-    var inputCustom = document.getElementById("nama_barang_custom");
-
-    if (pilihan === "Lainnya") {
-        boxCustom.style.display = "block";
-        inputCustom.required = true;
-        inputCustom.focus();
-    } else {
-        boxCustom.style.display = "none";
-        inputCustom.required = false;
-        inputCustom.value = "";
-    }
+function cekLainnya(select) {
+    const input = select.nextElementSibling;
+    const isLainnya = select.value === 'Lainnya';
+    input.style.display = isLainnya ? 'block' : 'none';
+    input.required = isLainnya;
+    if (isLainnya) input.focus();
+    else input.value = '';
 }
 
-function previewFoto(event) {
-    var reader = new FileReader();
-    reader.onload = function(){
-        var output = document.getElementById('previewImage');
-        var text = document.getElementById('previewText');
-        output.src = reader.result;
-        output.style.display = 'block';
-        text.style.display = 'none';
-    };
-    if (event.target.files[0]) {
-        reader.readAsDataURL(event.target.files[0]);
-    }
+function tambahBarang() {
+    const container = document.getElementById('daftarBarang');
+    const box = container.firstElementChild.cloneNode(true);
+    const select = box.querySelector('select');
+
+    box.querySelector('label').outerHTML = `
+        <div class="toolbar" style="margin-bottom: 5px;">
+            <label class="judul-tambahan" style="margin: 0;"></label>
+            <button type="button" class="btn btn-danger btn-sm" onclick="hapusBarang(this)">Hapus</button>
+        </div>`;
+
+    select.required = false;
+    select.value = '';
+    select.options[0].text = 'Pilih Barang (Boleh Kosong)';
+    cekLainnya(select);
+
+    container.appendChild(box);
+    urutkanNomor();
+}
+
+function hapusBarang(btn) {
+    btn.closest('.barang-item-box').remove();
+    urutkanNomor();
+}
+
+function urutkanNomor() {
+    document.querySelectorAll('.judul-tambahan').forEach((el, idx) => {
+        el.textContent = `Barang ${idx + 6} (Tambahan):`;
+    });
 }
 </script>
 
