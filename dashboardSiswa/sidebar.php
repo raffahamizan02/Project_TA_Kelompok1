@@ -35,9 +35,6 @@ $gedung_aktif = $gedung_aktif ?? 'Gedung A';
                 <a href="javascript:void(0);" onclick="openModalHistory()">
                     <i class="fa-solid fa-clock-rotate-left"></i> 
                     <span>Riwayat Penitipan</span>
-                    <?php if (($total_tersimpan ?? 0) > 0): ?>
-                        <span class="badge-notif"><?php echo $total_tersimpan; ?></span>
-                    <?php endif; ?>
                 </a>
             </li>
 
