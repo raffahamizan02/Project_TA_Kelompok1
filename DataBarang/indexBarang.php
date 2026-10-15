@@ -1,8 +1,6 @@
 <?php
-// Hubungkan ke file koneksi
 include "connectBarang.php";
 
-// Menangani pencarian
 $kata_kunci = "";
 $kondisi_cari = "";
 
@@ -14,14 +12,12 @@ if (isset($_GET['cari']) && !empty(trim($_GET['cari']))) {
                        OR l.nomor_loker LIKE '%$kata_kunci%') ";
 }
 
-// Menangani filter status
 $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($koneksi, $_GET['status']) : '';
 $kondisi_status = "";
 if (!empty($filter_status)) {
     $kondisi_status = " AND b.status = '$filter_status' ";
 }
 
-// Query mengambil data barang
 $querySql = "SELECT b.*, 
                     u.nama_lengkap AS nama_siswa, 
                     u.username AS nis_siswa, 
@@ -48,8 +44,6 @@ $hasilData = mysqli_query($koneksi, $querySql);
 <body>
 
 <div class="container">
-
-    <!-- Header Halaman -->
     <div class="header-box">
         <div>
             <h2>Data Barang Titipan</h2>
@@ -60,8 +54,7 @@ $hasilData = mysqli_query($koneksi, $querySql);
         </div>
     </div>
 
-    <!-- Pesan Notifikasi -->
-    <?php if (isset($_GET['pesan'])): ?>
+\    <?php if (isset($_GET['pesan'])): ?>
         <?php if ($_GET['pesan'] == 'sukses_tambah'): ?>
             <div class="alert alert-success">Data barang berhasil ditambahkan ke loker.</div>
         <?php elseif ($_GET['pesan'] == 'sukses_edit'): ?>
@@ -73,10 +66,7 @@ $hasilData = mysqli_query($koneksi, $querySql);
         <?php endif; ?>
     <?php endif; ?>
 
-    <!-- Tabel Data Barang -->
     <div class="card">
-
-        <!-- Toolbar Pencarian & Filter -->
         <div class="toolbar">
             <form method="GET" action="indexBarang.php" class="search-form">
                 <?php if (!empty($filter_status)): ?>
@@ -91,9 +81,9 @@ $hasilData = mysqli_query($koneksi, $querySql);
 
             <div style="font-size: 13px;">
                 Filter Status: 
-                <a href="indexBarang.php" style="margin: 0 4px; <?php echo empty($filter_status) ? 'font-weight: bold;' : ''; ?>">Semua</a> |
-                <a href="indexBarang.php?status=Tersimpan" style="margin: 0 4px; color: #28a745; <?php echo ($filter_status == 'Tersimpan') ? 'font-weight: bold;' : ''; ?>">Tersimpan</a> |
-                <a href="indexBarang.php?status=Sudah diambil" style="margin: 0 4px; color: #6c757d; <?php echo ($filter_status == 'Sudah diambil') ? 'font-weight: bold;' : ''; ?>">Sudah Diambil</a>
+                <a href="indexBarang.php" style="margin: 0 4px; color: #0F233A; <?php echo empty($filter_status) ? 'font-weight: bold;' : ''; ?>">Semua</a> |
+                <a href="indexBarang.php?status=Tersimpan" style="margin: 0 4px; color: #15803D; <?php echo ($filter_status == 'Tersimpan') ? 'font-weight: bold;' : ''; ?>">Tersimpan</a> |
+                <a href="indexBarang.php?status=Sudah diambil" style="margin: 0 4px; color: #64748B; <?php echo ($filter_status == 'Sudah diambil') ? 'font-weight: bold;' : ''; ?>">Sudah Diambil</a>
             </div>
         </div>
 
@@ -129,7 +119,7 @@ $hasilData = mysqli_query($koneksi, $querySql);
                                         <img src="<?php echo $path_foto; ?>" alt="Foto" class="thumb-img">
                                     </a>
                                 <?php else: ?>
-                                    <span style="font-size: 11px; color: #6c757d;">No Foto</span>
+                                    <span style="font-size: 11px; color: #94A3B8;">No Foto</span>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -140,11 +130,11 @@ $hasilData = mysqli_query($koneksi, $querySql);
                             </td>
                             <td>
                                 <?php echo htmlspecialchars($row['nama_siswa'] ?? 'Siswa #' . $row['id_siswa']); ?>
-                                <br><small style="color: #6c757d;"><?php echo htmlspecialchars($row['nis_siswa'] ?? ''); ?></small>
+                                <br><small style="color: #64748B;"><?php echo htmlspecialchars($row['nis_siswa'] ?? ''); ?></small>
                             </td>
                             <td>
                                 Loker <?php echo htmlspecialchars($row['nomor_loker'] ?? '-'); ?>
-                                <br><small style="color: #6c757d;"><?php echo htmlspecialchars($row['lokasi'] ?? ''); ?></small>
+                                <br><small style="color: #64748B;"><?php echo htmlspecialchars($row['lokasi'] ?? ''); ?></small>
                             </td>
                             <td>
                                 <?php if ($row['status'] == 'Tersimpan'): ?>
@@ -161,7 +151,7 @@ $hasilData = mysqli_query($koneksi, $querySql);
                                 if (!empty($row['waktu_pengambilan'])) {
                                     echo date('d/m/Y H:i', strtotime($row['waktu_pengambilan']));
                                 } else {
-                                    echo '<span style="color: #6c757d;">-</span>';
+                                    echo '<span style="color: #94A3B8;">-</span>';
                                 }
                                 ?>
                             </td>
@@ -175,7 +165,7 @@ $hasilData = mysqli_query($koneksi, $querySql);
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="10" style="text-align: center; padding: 30px; color: #6c757d;">
+                            <td colspan="10" style="text-align: center; padding: 30px; color: #64748B;">
                                 Belum ada data barang. Silakan klik tombol <strong>+ Tambah Barang</strong>.
                             </td>
                         </tr>

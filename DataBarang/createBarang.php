@@ -4,17 +4,17 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 
 $queryLoker = mysqli_query($koneksi, "SELECT id_loker, nomor_loker, lokasi FROM loker ORDER BY nomor_loker ASC");
 $querySiswa = mysqli_query($koneksi, "SELECT id_user, nama_lengkap, username FROM users WHERE role = 'siswa' ORDER BY nama_lengkap ASC");
-$id_siswa_login =$_SESSION['id_user'] ?? '';
+$id_siswa_login = $_SESSION['id_user'] ?? '';
 
-$opsiBarang = [
-    "Tas Ransel"  => "Tas Ransel",
-    "Jaket"       => "Jaket / Hoodie",
-    "Helm"        => "Helm",
-    "Laptop"      => "Laptop / Gadget",
-    "Sepatu"      => "Sepatu",
-    "Buku"        => "Buku / Modul",
-    "Botol Minum" => "Botol Minum",
-    "Lainnya"     => "Lainnya (Ketik Sendiri)"
+$daftarBarang = [
+    "Tas"           => "Tas Ransel",
+    "Jaket"         => "Jaket / Hoodie",
+    "Helm"          => "Helm",
+    "Elektronik"    => "Laptop / Gadget",
+    "Sepatu"        => "Sepatu",
+    "Buku"          => "Buku Tulis / Buku Paket",
+    "Botol Minum"   => "Botol Minum",
+    "Lainnya"       => "Lainnya (Ketik Sendiri)"
 ];
 ?>
 <!DOCTYPE html>
@@ -37,7 +37,7 @@ $opsiBarang = [
             <?= htmlspecialchars($_GET['teks'] ?? 'Terjadi kesalahan pada data input.') ?>
         </div>
     <?php endif; ?>
-
+    
     <div class="card">
         <form action="saveBarang.php" method="POST" enctype="multipart/form-data">
 
@@ -80,7 +80,7 @@ $opsiBarang = [
                             <label>Barang <?= $i ?> (Wajib):</label>
                             <select name="pilihan_barang[]" class="form-control" onchange="cekLainnya(this)" required>
                                 <option value="">Pilih Barang</option>
-                                <?php foreach ($opsiBarang as $val =>$label): ?>
+                                <?php foreach ($daftarBarang as $val => $label): ?>
                                     <option value="<?= $val ?>"><?= $label ?></option>
                                 <?php endforeach; ?>
                             </select>
