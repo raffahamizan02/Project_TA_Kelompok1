@@ -1,50 +1,15 @@
 <?php
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-include "connectBarang.php";
+require_once "connectBarang.php";
 
-$id = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0;
+$id = $_REQUEST['id'] ?? 0;
 
-if ($id <= 0) {
-    header("Location: indexBarang.php");
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['konfirmasi_ambil'])) {
-    
-    $queryAmbil = "UPDATE barang SET 
-                        status = 'Sudah diambil', 
-                        waktu_pengambilan = NOW() 
-                   WHERE id_barang = '$id'";
-    
-    if (mysqli_query($koneksi, $queryAmbil)) {
-        $qLoker = mysqli_query($koneksi, "SELECT id_loker FROM barang WHERE id_barang = '$id'");
-        $dtLoker = mysqli_fetch_assoc($qLoker);
-        $id_loker = $dtLoker['id_loker'] ?? 0;
-        $cekSisa = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM barang WHERE id_loker = '$id_loker' AND status = 'Tersimpan'");
-        $sisa = mysqli_fetch_assoc($cekSisa)['total'] ?? 0;
-
-        if ($sisa == 0) {
-            mysqli_query($koneksi, "UPDATE loker SET status = 'Kosong' WHERE id_loker = '$id_loker'");
-        }
-
-        header("Location: indexBarang.php?pesan=sukses_ambil");
-        exit();
-    }
-}
-
-$query = "SELECT b.*, 
-                 u.nama_lengkap AS nama_siswa, 
-                 u.username AS nis_siswa, 
-                 l.nomor_loker, 
-                 l.lokasi
+$query = "SELECT b.*, u.nama_lengkap AS nama_siswa, u.username AS nis_siswa, l.nomor_loker, l.lokasi
           FROM barang b
           LEFT JOIN users u ON b.id_siswa = u.id_user
           LEFT JOIN loker l ON b.id_loker = l.id_loker
-          WHERE b.id_barang = '$id' LIMIT 1";
+          WHERE b.id_barang = '$id'";
 
-$hasil = mysqli_query($koneksi, $query);
+$hasil  = mysqli_query($koneksi, $query);
 $barang = mysqli_fetch_assoc($hasil);
 
 if (!$barang) {
@@ -52,8 +17,24 @@ if (!$barang) {
     exit();
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['konfirmasi_ambil'])) {
+    $id_loker = $barang['id_loker'];
+
+    mysqli_query($koneksi, "UPDATE barang SET status = 'Sudah diambil', waktu_pengambilan = NOW() WHERE id_barang = '$id'");
+
+    $cekSisa = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM barang WHERE id_loker = '$id_loker' AND status = 'Tersimpan'");
+    $sisa    = mysqli_fetch_assoc($cekSisa)['total'];
+
+    if ($sisa == 0) {
+        mysqli_query($koneksi, "UPDATE loker SET status = 'Kosong' WHERE id_loker = '$id_loker'");
+    }
+
+    header("Location: indexBarang.php?pesan=sukses_ambil");
+    exit();
+}
+
 $path_foto = 'uploads/' . $barang['foto_barang'];
-$ada_foto = (!empty($barang['foto_barang']) && file_exists(__DIR__ . '/' . $path_foto));
+$ada_foto  = (!empty($barang['foto_barang']) && file_exists($path_foto));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -61,15 +42,11 @@ $ada_foto = (!empty($barang['foto_barang']) && file_exists(__DIR__ . '/' . $path
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifikasi Barang</title>
-    <link rel="stylesheet" href="styleBarang.css?v=<?php echo time(); ?>">
-    <style>
-        <?php include __DIR__ . '/styleBarang.css'; ?>
-    </style>
+    <link rel="stylesheet" href="styleBarang.css">
 </head>
 <body>
 
 <div class="container">
-
     <div class="header-box">
         <div>
             <h2>Verifikasi & Pengambilan Barang</h2>
@@ -80,39 +57,37 @@ $ada_foto = (!empty($barang['foto_barang']) && file_exists(__DIR__ . '/' . $path
 
     <div class="card">
         <div class="detail-box">
-
             
             <div class="detail-foto">
                 <p style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">Bukti Foto Penitipan:</p>
                 <?php if ($ada_foto): ?>
-                    <img src="<?php echo $path_foto; ?>" alt="Bukti Foto">
+                    <img src="<?= $path_foto ?>" alt="Bukti Foto">
                 <?php else: ?>
                     <p style="text-align: center; padding: 40px 10px; color: #9E988E;">Tidak ada foto</p>
                 <?php endif; ?>
             </div>
 
-            
             <div class="detail-info">
                 <table>
                     <tr>
                         <th style="width: 150px;">Kode Barang</th>
-                        <td><span class="badge-kode"><?php echo htmlspecialchars($barang['kode_barang']); ?></span></td>
+                        <td><span class="badge-kode"><?= $barang['kode_barang'] ?></span></td>
                     </tr>
                     <tr>
                         <th>Nama Barang</th>
-                        <td><strong><?php echo htmlspecialchars($barang['nama_barang']); ?></strong></td>
+                        <td><strong><?= $barang['nama_barang'] ?></strong></td>
                     </tr>
                     <tr>
                         <th>Siswa Pemilik</th>
-                        <td><?php echo htmlspecialchars($barang['nama_siswa'] ?? '-'); ?> (NIS: <?php echo htmlspecialchars($barang['nis_siswa'] ?? '-'); ?>)</td>
+                        <td><?= $barang['nama_siswa'] ?? '-' ?> (NIS: <?= $barang['nis_siswa'] ?? '-' ?>)</td>
                     </tr>
                     <tr>
                         <th>Loker</th>
-                        <td>Loker <?php echo htmlspecialchars($barang['nomor_loker'] ?? '-'); ?> - <?php echo htmlspecialchars($barang['lokasi'] ?? '-'); ?></td>
+                        <td>Loker <?= $barang['nomor_loker'] ?? '-' ?> - Lokasi: <?= $barang['lokasi'] ?? '-' ?></td>
                     </tr>
                     <tr>
                         <th>Waktu Penitipan</th>
-                        <td><?php echo date('d/m/Y H:i', strtotime($barang['waktu_penitipan'])); ?> WIB</td>
+                        <td><?= date('d/m/Y H:i', strtotime($barang['waktu_penitipan'])) ?> WIB</td>
                     </tr>
                     <tr>
                         <th>Status</th>
@@ -127,7 +102,7 @@ $ada_foto = (!empty($barang['foto_barang']) && file_exists(__DIR__ . '/' . $path
                     <?php if (!empty($barang['waktu_pengambilan'])): ?>
                     <tr>
                         <th>Waktu Diambil</th>
-                        <td><?php echo date('d/m/Y H:i', strtotime($barang['waktu_pengambilan'])); ?> WIB</td>
+                        <td><?= date('d/m/Y H:i', strtotime($barang['waktu_pengambilan'])) ?> WIB</td>
                     </tr>
                     <?php endif; ?>
                 </table>
@@ -138,7 +113,7 @@ $ada_foto = (!empty($barang['foto_barang']) && file_exists(__DIR__ . '/' . $path
                             Konfirmasi bahwa barang fisik di loker sudah sesuai dengan foto dan telah diserahkan kepada siswa:
                         </p>
                         <form action="verificationBarang.php" method="POST" onsubmit="return confirm('Apakah Anda yakin barang ini sudah diambil oleh siswa?')">
-                            <input type="hidden" name="id" value="<?php echo $barang['id_barang']; ?>">
+                            <input type="hidden" name="id" value="<?= $barang['id_barang'] ?>">
                             <button type="submit" name="konfirmasi_ambil" value="1" class="btn btn-success">
                                 Tandai Barang Sudah Diambil
                             </button>
@@ -146,7 +121,7 @@ $ada_foto = (!empty($barang['foto_barang']) && file_exists(__DIR__ . '/' . $path
                         </form>
                     <?php else: ?>
                         <p style="color: #1E1D1B; font-weight: bold; font-size: 13px;">
-                            Barang ini sudah diambil pada <?php echo date('d/m/Y H:i', strtotime($barang['waktu_pengambilan'])); ?> WIB.
+                            Barang ini sudah diambil pada <?= date('d/m/Y H:i', strtotime($barang['waktu_pengambilan'])) ?> WIB.
                         </p>
                         <div style="margin-top: 10px;">
                             <a href="indexBarang.php" class="btn btn-secondary">Kembali</a>
@@ -158,7 +133,6 @@ $ada_foto = (!empty($barang['foto_barang']) && file_exists(__DIR__ . '/' . $path
 
         </div>
     </div>
-
 </div>
 
 </body>

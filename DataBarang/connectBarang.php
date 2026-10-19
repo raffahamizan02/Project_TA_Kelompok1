@@ -1,8 +1,7 @@
 <?php
-
 $host     = "localhost";
-$username = "app_kel1";
-$password = "D@t@6@53K3l1";
+$username = "root";
+$password = "";
 $database = "db_kel1";
 
 $koneksi = mysqli_connect($host, $username, $password, $database);
