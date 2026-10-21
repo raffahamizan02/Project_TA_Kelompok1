@@ -169,9 +169,12 @@ $page_title = $page_title ?? 'Dashboard';
                 <a href="javascript:void(0);" onclick="openModalProfile()" class="dropdown-item">
                     <i class="fa-solid fa-id-card"></i> Edit Profil
                 </a>
-                <a href="#" onclick="event.preventDefault(); Swal.fire({icon:'info',title:'Info',text:'Logout akan aktif setelah integrasi backend.'});" class="dropdown-item logout-item">
+                
+                <!-- INI BAGIAN YANG DIPERBAIKI: LANGSUNG KE LOGOUT.PHP -->
+                <a href="../login/logout.php" class="dropdown-item logout-item">
                     <i class="fa-solid fa-right-from-bracket"></i> Keluar
                 </a>
+                
             </div>
         </div>
     </div>
