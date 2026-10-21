@@ -12,13 +12,13 @@ if (isset($_POST['simpan'])) {
 
     $lokasi = mysqli_real_escape_string(
         $koneksi,
-        $_POST['lokasi']
+        $_POST['id_gedung']
     );
 
     // Validasi gedung (hanya boleh Gedung A - D)
     $gedung_valid = ['Gedung A', 'Gedung B', 'Gedung C', 'Gedung D'];
 
-    if (!in_array($_POST['lokasi'], $gedung_valid, true)) {
+    if (!in_array($_POST['id_gedung'], $gedung_valid, true)) {
 
         header("Location: loker.php");
         exit();
@@ -54,7 +54,7 @@ if (isset($_POST['simpan'])) {
     $simpan = mysqli_query(
         $koneksi,
         "INSERT INTO loker
-        (nomor_loker, lokasi, status)
+        (nomor_loker, id_gedung, status)
         VALUES
         ('$nomor_loker', '$lokasi', '$status')"
     );
