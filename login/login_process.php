@@ -2,10 +2,12 @@
 require_once __DIR__ . '/koneksi.php';
 require_once __DIR__ . '/functions.php';
 
+// Pastikan request yang masuk adalah metode POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect('login.php');
 }
 
+// Ambil data dari form
 $username = clean_input($_POST['username'] ?? '');
 $password = trim($_POST['password'] ?? '');
 $role     = clean_input($_POST['role'] ?? 'siswa');
@@ -34,22 +36,26 @@ $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
+// Jika user tidak ditemukan
 if (!$user) {
     set_flash('error', "Akun " . ucfirst($role) . " dengan username tersebut tidak ditemukan!");
     redirect($login_page);
 }
 
-// Verifikasi password
+// Verifikasi password (mendukung hash, md5, atau plain text)
 $valid = password_verify($password, $user['password'])
       || md5($password) === $user['password']
       || $password === $user['password'];
 
+// Jika password salah
 if (!$valid) {
     set_flash('error', 'Password yang Anda masukkan salah!');
     redirect($login_page);
 }
 
-// Set session
+// ==========================================
+// JIKA LOGIN BERHASIL, SET SESSION
+// ==========================================
 $_SESSION['id_user']      = $user['id_user'];
 $_SESSION['username']     = $user['username'];
 $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
@@ -60,10 +66,14 @@ unset($_SESSION['form_username']);
 
 set_flash('success', 'Selamat datang, ' . $user['nama_lengkap'] . '!');
 
-// Redirect sesuai role
+// ==========================================
+// REDIRECT SESUAI ROLE
+// ==========================================
 if ($user['role'] === 'admin') {
-    redirect('../DashboardAdmin/index.php');
+    // PERHATIKAN BARIS INI: Diarahkan ke beranda.php
+    redirect('../DashboardAdmin/beranda.php');
 } else {
+    // Siswa diarahkan ke dashboard siswa
     redirect('../dashboardSiswa/dashboard.php');
 }
 ?>

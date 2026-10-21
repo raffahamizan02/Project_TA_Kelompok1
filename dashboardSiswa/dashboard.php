@@ -1,14 +1,24 @@
 <?php
 // ============================================
-// TAMPILAN ONLY — TANPA LOGIC & DATA
-// (Backend akan diintegrasikan oleh anggota kelompok)
+// DASHBOARD SISWA (DENGAN SESSION LOGIN)
 // ============================================
+session_start();
 
-$nama_lengkap = '';
-$role         = 'siswa';
-$inisial      = '-';
-$foto_user    = '';
+// 1. Satpam: Cek apakah user sudah login dan role-nya siswa
+if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'siswa') {
+    header("Location: ../login/login.php");
+    exit;
+}
 
+// 2. Ambil data dari session (hasil login tadi)
+$nama_lengkap = $_SESSION['nama_lengkap'] ?? 'Siswa';
+$role         = $_SESSION['role'] ?? 'siswa';
+
+// 3. Buat inisial otomatis dari huruf pertama nama
+$inisial      = strtoupper(substr(trim($nama_lengkap), 0, 1));
+$foto_user    = ''; // Nanti bisa disambungkan ke database kalau ada fitur upload foto
+
+// 4. Data Gedung
 $gedung_aktif = isset($_GET['gedung']) ? $_GET['gedung'] : 'Gedung A';
 $kode_gedung_prefix = strtoupper(trim(str_replace('Gedung', '', $gedung_aktif)));
 
@@ -132,7 +142,7 @@ include __DIR__ . '/header.php';
 
             <div style="text-align: center; margin-bottom: 15px;">
                 <div class="avatar-circle" style="width: 70px; height: 70px; margin: 0 auto 10px; font-size: 24px;">
-                    -
+                    <?php echo $inisial; ?>
                 </div>
                 <label style="cursor: pointer; font-size: 12px; color: #0284c7; font-weight: 600;">
                     <i class="fa-solid fa-camera"></i> Ubah Foto Profil
@@ -142,7 +152,7 @@ include __DIR__ . '/header.php';
 
             <div class="form-group">
                 <label>Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" class="form-input" placeholder="Nama lengkap">
+                <input type="text" name="nama_lengkap" class="form-input" value="<?php echo htmlspecialchars($nama_lengkap); ?>" readonly>
             </div>
 
             <div class="form-group">
