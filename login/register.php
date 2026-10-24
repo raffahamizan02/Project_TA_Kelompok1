@@ -12,6 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css">
 
 
     <style>
@@ -176,7 +179,43 @@
     </style>
 
 </head>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
+
+    <script>
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            positionClass: "toast-top-right",
+         timeOut: 3000
+        };
+    </script>
+
+    <?php
+    if (isset($_GET['error'])) {
+
+        if ($_GET['error'] == 'username') {
+            echo "<script>
+                toastr.error('Username / NIS sudah terdaftar!', 'Registrasi Gagal');
+            </script>";
+        }
+
+        if ($_GET['error'] == 'empty') {
+            echo "<script>
+                toastr.warning('Semua data harus diisi!', 'Peringatan');
+            </script>";
+        }
+
+        if ($_GET['error'] == 'failed') {
+            echo "<script>
+                toastr.error('Registrasi gagal, silakan coba lagi!', 'Registrasi Gagal');
+            </script>";
+        }
+    }
+    ?>
+
+</body>
 
 <body>
 
@@ -244,7 +283,7 @@
             <div class="form-group">
 
                 <label>
-                    Username / NISN
+                    Username / NIS
                 </label>
 
                 <div class="input-group">
@@ -255,7 +294,9 @@
                         type="text"
                         name="username"
                         class="input-control"
-                        placeholder="Masukkan Username / NISN"
+                        placeholder="Masukkan Username / NIS"
+                        pattern="[0-9/.]+"
+                        inputmode="text"
                         required
                     >
 
@@ -308,13 +349,55 @@
 
     </div>
 
-
     <div class="card-footer-custom">
 
         &copy; 2026 SMK PGRI 3 Malang. All Rights Reserved.
 
     </div>
 
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
+
+<script>
+    toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: "toast-top-right",
+        timeOut: 3000
+    };
+</script>
+
+<?php
+if (isset($_GET['error'])) {
+
+    if ($_GET['error'] == 'username') {
+        echo "<script>
+            toastr.error('Username / NIS sudah terdaftar!', 'Registrasi Gagal');
+        </script>";
+    }
+
+    if ($_GET['error'] == 'empty') {
+        echo "<script>
+            toastr.warning('Semua data harus diisi!', 'Peringatan');
+        </script>";
+    }
+
+    if ($_GET['error'] == 'failed') {
+        echo "<script>
+            toastr.error('Registrasi gagal, silakan coba lagi!', 'Registrasi Gagal');
+        </script>";
+    }
+}
+?>
+
+</body>
+
+</html>
 
 </div>
 

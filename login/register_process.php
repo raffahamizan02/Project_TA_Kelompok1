@@ -9,18 +9,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Cek apakah semua data sudah diisi
     if (empty($nama_lengkap) || empty($username) || empty($password)) {
-        echo "Semua data harus diisi!";
+        header("Location: register.php?error=empty");
         exit;
     }
 
-    // Cek username
+    // Cek username / NIS
     $cek = mysqli_query(
         $koneksi,
         "SELECT * FROM users WHERE username = '$username'"
     );
 
     if (mysqli_num_rows($cek) > 0) {
-        echo "Username sudah terdaftar!";
+        header("Location: register.php?error=username");
         exit;
     }
 
@@ -49,7 +49,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
 
     } else {
-        echo "Registrasi gagal!";
+
+        // Jika registrasi gagal
+        header("Location: register.php?error=failed");
+        exit;
     }
 }
 ?>
