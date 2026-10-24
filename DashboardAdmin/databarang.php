@@ -38,20 +38,28 @@ $daftar_barang = ambilDaftarBarang($koneksi, $mock_barang, $cari, $status);
         </div>
 
         <div class="card">
-            <form method="GET" action="databarang.php" class="filter-bar">
-                <input type="text" name="cari" class="form-control" placeholder="Cari barang, kode, siswa..." value="<?= $cari ?>" style="min-width: 240px;">
+            <!-- Filter & Aksi Cepat -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                <form method="GET" action="databarang.php" class="filter-bar" style="margin-bottom: 0;">
+                    <input type="text" name="cari" class="form-control" placeholder="Cari barang, kode, siswa..." value="<?= htmlspecialchars($cari) ?>" style="min-width: 220px;">
 
-                <select name="status" class="form-control">
-                    <option value="">Semua Status</option>
-                    <option value="Tersimpan" <?= ($status === 'Tersimpan') ? 'selected' : '' ?>>Tersimpan</option>
-                    <option value="Sudah diambil" <?= ($status === 'Sudah diambil') ? 'selected' : '' ?>>Sudah diambil</option>
-                </select>
+                    <select name="status" class="form-control">
+                        <option value="">Semua Status</option>
+                        <option value="Tersimpan" <?= ($status === 'Tersimpan') ? 'selected' : '' ?>>Tersimpan</option>
+                        <option value="Sudah diambil" <?= ($status === 'Sudah diambil') ? 'selected' : '' ?>>Sudah diambil</option>
+                    </select>
 
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <?php if ($cari !== '' || $status !== ''): ?>
-                    <a href="databarang.php" class="btn btn-secondary">Reset</a>
-                <?php endif; ?>
-            </form>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <?php if ($cari !== '' || $status !== ''): ?>
+                        <a href="databarang.php" class="btn btn-secondary">Reset</a>
+                    <?php endif; ?>
+                </form>
+
+                <div style="display: flex; gap: 8px;">
+                    <a href="../DataBarang/createBarang.php" class="btn btn-primary">+ Tambah Barang</a>
+                    <a href="../DataBarang/indexBarang.php" class="btn btn-secondary">Halaman Penuh</a>
+                </div>
+            </div>
 
             <div class="table-container">
                 <table>
@@ -65,6 +73,7 @@ $daftar_barang = ambilDaftarBarang($koneksi, $mock_barang, $cari, $status);
                             <th>Loker</th>
                             <th>Waktu Penitipan</th>
                             <th>Status</th>
+                            <th style="text-align: center; width: 180px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,8 +83,9 @@ $daftar_barang = ambilDaftarBarang($koneksi, $mock_barang, $cari, $status);
                                     $foto = $b['foto_barang'] ?? '';
                                     $path_foto = '';
                                     if ($foto !== '') {
-                                        if (file_exists("uploads/$foto")) $path_foto = "uploads/$foto";
-                                        elseif (file_exists("../uploads/$foto")) $path_foto = "../uploads/$foto";
+                                        if (file_exists(__DIR__ . "/../DataBarang/uploads/$foto")) $path_foto = "../DataBarang/uploads/$foto";
+                                        elseif (file_exists(__DIR__ . "/uploads/$foto")) $path_foto = "uploads/$foto";
+                                        elseif (file_exists(__DIR__ . "/../uploads/$foto")) $path_foto = "../uploads/$foto";
                                     }
                                 ?>
                                 <tr>
@@ -89,16 +99,16 @@ $daftar_barang = ambilDaftarBarang($koneksi, $mock_barang, $cari, $status);
                                             <?php endif; ?>
                                         </div>
                                     </td>
-                                    <td><span class="badge badge-kode"><?= $b['kode_barang'] ?></span></td>
-                                    <td><strong><?= $b['nama_barang'] ?></strong></td>
+                                    <td><span class="badge badge-kode"><?= htmlspecialchars($b['kode_barang']) ?></span></td>
+                                    <td><strong><?= htmlspecialchars($b['nama_barang']) ?></strong></td>
                                     <td>
-                                        <?= $b['nama_siswa'] ?>
+                                        <?= htmlspecialchars($b['nama_siswa']) ?>
                                         <?php if (!empty($b['nis_siswa'])): ?>
-                                            <div style="font-size: 11px; color: #9E988E;"><?= $b['nis_siswa'] ?></div>
+                                            <div style="font-size: 11px; color: #9E988E;"><?= htmlspecialchars($b['nis_siswa']) ?></div>
                                         <?php endif; ?>
                                     </td>
-                                    <td><span class="badge badge-terisi"><?= $b['nomor_loker'] ?></span></td>
-                                    <td style="color: #6E6A63; font-size: 12px;"><?= $b['waktu_penitipan'] ?></td>
+                                    <td><span class="badge badge-terisi"><?= htmlspecialchars($b['nomor_loker']) ?></span></td>
+                                    <td style="color: #6E6A63; font-size: 12px;"><?= htmlspecialchars($b['waktu_penitipan']) ?></td>
                                     <td>
                                         <?php if ($b['status'] === 'Tersimpan'): ?>
                                             <span class="badge badge-tersimpan">Tersimpan</span>
@@ -106,11 +116,16 @@ $daftar_barang = ambilDaftarBarang($koneksi, $mock_barang, $cari, $status);
                                             <span class="badge badge-diambil">Sudah diambil</span>
                                         <?php endif; ?>
                                     </td>
+                                    <td style="text-align: center; white-space: nowrap;">
+                                        <a href="../DataBarang/verificationBarang.php?id=<?= $b['id_barang'] ?>" class="btn btn-sm btn-primary">Verifikasi</a>
+                                        <a href="../DataBarang/updateBarang.php?id=<?= $b['id_barang'] ?>" class="btn btn-sm btn-secondary">Edit</a>
+                                        <a href="../DataBarang/deleteBarang.php?id=<?= $b['id_barang'] ?>" class="btn btn-sm" style="background: #F9E2DF; color: #B8473E;" onclick="return confirm('Hapus barang ini?')">Hapus</a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" style="text-align: center; color: #9E988E; padding: 25px;">
+                                <td colspan="9" style="text-align: center; color: #9E988E; padding: 25px;">
                                     Data barang tidak ditemukan.
                                 </td>
                             </tr>

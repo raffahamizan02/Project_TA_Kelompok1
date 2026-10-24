@@ -1,7 +1,7 @@
 <?php
 require_once "connectBarang.php";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi_massal'])) {
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['aksi_massal'])) {
     $aksi = $_POST['aksi_massal'];
     $ids  = $_POST['id_barang'] ?? [];
 
@@ -27,9 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi_massal'])) {
 
     if ($aksi === 'verifikasi') {
         mysqli_query($koneksi, "UPDATE barang SET status = 'Sudah diambil', waktu_pengambilan = NOW() WHERE id_barang IN ($id_list) AND status = 'Tersimpan'");
+        @mysqli_query($koneksi, "INSERT INTO log_aktivitas (id_admin, aksi, id_barang_terkait, keterangan, waktu) 
+            VALUES (1, 'Ubah', NULL, 'Verifikasi massal $jumlah barang sudah diambil', NOW())");
         $pesan = "sukses_verifikasi_massal";
     } elseif ($aksi === 'hapus') {
         mysqli_query($koneksi, "DELETE FROM barang WHERE id_barang IN ($id_list)");
+        @mysqli_query($koneksi, "INSERT INTO log_aktivitas (id_admin, aksi, id_barang_terkait, keterangan, waktu) 
+            VALUES (1, 'Hapus', NULL, 'Hapus massal $jumlah data barang', NOW())");
         $pesan = "sukses_hapus_massal";
     }
 
@@ -62,10 +66,11 @@ if ($filter_status !== '') {
     $kondisi .= " AND b.status = '$status'";
 }
 
-$querySql = "SELECT b.*, u.nama_lengkap AS nama_siswa, u.username AS nis_siswa, l.nomor_loker, l.lokasi
+$querySql = "SELECT b.*, u.nama_lengkap AS nama_siswa, u.username AS nis_siswa, l.nomor_loker, g.nama_gedung AS lokasi
              FROM barang b
              LEFT JOIN users u ON b.id_siswa = u.id_user
              LEFT JOIN loker l ON b.id_loker = l.id_loker
+             LEFT JOIN gedung g ON l.id_gedung = g.id_gedung
              $kondisi
              ORDER BY b.id_barang DESC";
 $hasilData = mysqli_query($koneksi, $querySql);
@@ -90,7 +95,9 @@ $c_diambil   = mysqli_num_rows(mysqli_query($koneksi, "SELECT id_barang FROM bar
             <h2>Data Barang Titipan</h2>
             <p>Daftar seluruh barang yang dititipkan siswa di loker sekolah</p>
         </div>
-        <div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="../DashboardAdmin/laporan.php" class="btn btn-secondary">Rekap & Laporan</a>
+            <a href="../DashboardAdmin/beranda.php" class="btn btn-secondary">Dashboard Admin</a>
             <a href="createBarang.php" class="btn btn-primary">+ Tambah Barang</a>
         </div>
     </div>

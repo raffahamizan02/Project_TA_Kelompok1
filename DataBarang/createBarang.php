@@ -2,7 +2,7 @@
 session_start();
 require_once "connectBarang.php";
 
-$queryLoker = mysqli_query($koneksi, "SELECT id_loker, nomor_loker, lokasi FROM loker ORDER BY nomor_loker ASC");
+$queryLoker = mysqli_query($koneksi, "SELECT l.id_loker, l.nomor_loker, g.nama_gedung AS lokasi FROM loker l LEFT JOIN gedung g ON l.id_gedung = g.id_gedung ORDER BY l.nomor_loker ASC");
 $querySiswa = mysqli_query($koneksi, "SELECT id_user, nama_lengkap, username FROM users WHERE role = 'siswa' ORDER BY nama_lengkap ASC");
 $id_siswa_login =$_SESSION['id_user'] ?? '';
 

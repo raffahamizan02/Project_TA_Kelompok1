@@ -81,6 +81,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             waktu_pengambilan = $waktu_ambil
             WHERE id_barang = '$id'");
 
+        $id_admin = $_SESSION['id_user'] ?? 1;
+        $ket_log = ($status === 'Sudah diambil') 
+            ? "Mengubah status barang $nama_bersih menjadi Sudah diambil" 
+            : "Mengubah data barang $nama_bersih";
+        @mysqli_query($koneksi, "INSERT INTO log_aktivitas (id_admin, aksi, id_barang_terkait, keterangan, waktu) 
+            VALUES ('$id_admin', 'Ubah', '$id', '$ket_log', NOW())");
+
         if ($status === 'Tersimpan') {
             mysqli_query($koneksi, "UPDATE loker SET status = 'Terisi' WHERE id_loker = '$id_loker_baru'");
         }
@@ -97,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$queryLoker = mysqli_query($koneksi, "SELECT id_loker, nomor_loker, lokasi FROM loker ORDER BY nomor_loker ASC");
+$queryLoker = mysqli_query($koneksi, "SELECT l.id_loker, l.nomor_loker, g.nama_gedung AS lokasi FROM loker l LEFT JOIN gedung g ON l.id_gedung = g.id_gedung ORDER BY l.nomor_loker ASC");
 $querySiswa = mysqli_query($koneksi, "SELECT id_user, nama_lengkap, username FROM users WHERE role = 'siswa' ORDER BY nama_lengkap ASC");
 $path_foto  = 'uploads/' . $barang['foto_barang'];
 $ada_foto   = (!empty($barang['foto_barang']) && file_exists($path_foto));
