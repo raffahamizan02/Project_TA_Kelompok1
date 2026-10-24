@@ -4,10 +4,11 @@ require_once "koneksi.php";
 $halaman_aktif = 'beranda';
 $nama_admin    = $_SESSION['nama_lengkap'] ?? 'Admin TU';
 
-$stat           = ambilStatistik($koneksi, $mock_loker, $mock_barang);
-$semua_loker    = ambilDaftarLoker($koneksi, $mock_loker);
-$barang_terbaru = array_slice(ambilDaftarBarang($koneksi, $mock_barang), 0, 5);
-$log_terbaru    = array_slice(ambilLogAktivitas($koneksi, $mock_log), 0, 4);
+$stat             = ambilStatistik($koneksi, $mock_loker, $mock_barang);
+$semua_loker      = ambilDaftarLoker($koneksi, $mock_loker);
+$barang_terbaru   = array_slice(ambilDaftarBarang($koneksi, $mock_barang), 0, 5);
+$log_terbaru      = array_slice(ambilLogAktivitas($koneksi, $mock_log), 0, 4);
+$grafik_mingguan  = ambilGrafikMingguan($koneksi, $mock_grafik);
 
 $loker_penuh_list = [];
 foreach ($semua_loker as $l) {
@@ -109,8 +110,8 @@ foreach ($semua_loker as $l) {
                         ?>
                         <div class="locker-box">
                             <div class="locker-head">
-                                <span class="locker-no"><?= $l['nomor_loker'] ?></span>
-                                <span class="badge <?= $badge_class ?>"><?= $l['status'] ?></span>
+                                <span class="locker-no"><?= htmlspecialchars($l['nomor_loker']) ?></span>
+                                <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($l['status']) ?></span>
                             </div>
                             <div class="locker-info"><?= $terisi ?> / <?= $kapasitas ?> (<?= $persen ?>%)</div>
                             <div class="locker-bar">
@@ -128,35 +129,41 @@ foreach ($semua_loker as $l) {
                 </div>
 
                 <div class="chart">
-                    <?php foreach ($mock_grafik as $g): ?>
+                    <?php foreach ($grafik_mingguan as $g): ?>
                         <div class="bar-col <?= ($g['hari'] === 'Sabtu') ? 'active' : '' ?>">
                             <div class="bar" style="height: <?= $g['tinggi'] ?>;"></div>
-                            <span class="bar-lbl"><?= $g['hari'] ?></span>
+                            <span class="bar-lbl"><?= htmlspecialchars($g['hari']) ?></span>
                         </div>
                     <?php endforeach; ?>
                 </div>
 
                 <div style="margin-top: 16px;">
-                    <div style="font-weight: bold; font-size: 12px; margin-bottom: 8px; color: #6E6A63;">Log Aktivitas Terbaru</div>
+                    <div style="font-weight: 600; font-size: 12px; margin-bottom: 8px; color: #6E6A63;">Log Aktivitas Terbaru</div>
                     <div class="table-container">
                         <table>
                             <tbody>
-                                <?php foreach ($log_terbaru as $lg): ?>
+                                <?php if (!empty($log_terbaru)): ?>
+                                    <?php foreach ($log_terbaru as $lg): ?>
+                                        <tr>
+                                            <td style="width: 70px;">
+                                                <span class="badge <?= ($lg['aksi'] === 'Tambah') ? 'badge-menunggu' : 'badge-terisi' ?>">
+                                                    <?= htmlspecialchars($lg['aksi']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <?= htmlspecialchars($lg['barang']) ?>
+                                                <div style="font-size: 11px; color: #6E6A63;"><?= htmlspecialchars($lg['keterangan']) ?></div>
+                                            </td>
+                                            <td style="font-size: 11px; color: #9E988E; width: 65px; text-align: right;">
+                                                <?= date('H:i', strtotime($lg['waktu'])) ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
                                     <tr>
-                                        <td style="width: 70px;">
-                                            <span class="badge <?= ($lg['aksi'] === 'Tambah') ? 'badge-menunggu' : 'badge-terisi' ?>">
-                                                <?= $lg['aksi'] ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <?= $lg['barang'] ?>
-                                            <div style="font-size: 11px; color: #6E6A63;"><?= $lg['keterangan'] ?></div>
-                                        </td>
-                                        <td style="font-size: 11px; color: #9E988E; width: 65px; text-align: right;">
-                                            <?= date('H:i', strtotime($lg['waktu'])) ?>
-                                        </td>
+                                        <td colspan="3" style="text-align: center; color: #9E988E; font-size: 12px; padding: 10px;">Belum ada log</td>
                                     </tr>
-                                <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -167,7 +174,7 @@ foreach ($semua_loker as $l) {
         <div class="card">
             <div class="card-header">
                 <h3>Barang Titipan Terbaru</h3>
-                <a href="databarang.php" class="btn btn-sm btn-primary">Lihat Semua Barang</a>
+                <a href="../DataBarang/indexBarang.php" class="btn btn-sm btn-primary">Kelola Data Barang</a>
             </div>
 
             <div class="table-container">
@@ -181,6 +188,7 @@ foreach ($semua_loker as $l) {
                             <th>Loker</th>
                             <th>Waktu Titip</th>
                             <th>Status</th>
+                            <th style="width: 80px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -190,8 +198,9 @@ foreach ($semua_loker as $l) {
                                     $foto = $b['foto_barang'] ?? '';
                                     $path_foto = '';
                                     if ($foto !== '') {
-                                        if (file_exists("uploads/$foto")) $path_foto = "uploads/$foto";
-                                        elseif (file_exists("../uploads/$foto")) $path_foto = "../uploads/$foto";
+                                        if (file_exists(__DIR__ . "/../DataBarang/uploads/$foto")) $path_foto = "../DataBarang/uploads/$foto";
+                                        elseif (file_exists(__DIR__ . "/uploads/$foto")) $path_foto = "uploads/$foto";
+                                        elseif (file_exists(__DIR__ . "/../uploads/$foto")) $path_foto = "../uploads/$foto";
                                     }
                                 ?>
                                 <tr>
@@ -204,11 +213,11 @@ foreach ($semua_loker as $l) {
                                             <?php endif; ?>
                                         </div>
                                     </td>
-                                    <td><span class="badge badge-kode"><?= $b['kode_barang'] ?></span></td>
-                                    <td><strong><?= $b['nama_barang'] ?></strong></td>
-                                    <td><?= $b['nama_siswa'] ?></td>
-                                    <td><span class="badge badge-terisi"><?= $b['nomor_loker'] ?></span></td>
-                                    <td style="color: #6E6A63; font-size: 12px;"><?= $b['waktu_penitipan'] ?></td>
+                                    <td><span class="badge badge-kode"><?= htmlspecialchars($b['kode_barang']) ?></span></td>
+                                    <td><strong><?= htmlspecialchars($b['nama_barang']) ?></strong></td>
+                                    <td><?= htmlspecialchars($b['nama_siswa']) ?></td>
+                                    <td><span class="badge badge-terisi"><?= htmlspecialchars($b['nomor_loker']) ?></span></td>
+                                    <td style="color: #6E6A63; font-size: 12px;"><?= htmlspecialchars($b['waktu_penitipan']) ?></td>
                                     <td>
                                         <?php if ($b['status'] === 'Tersimpan'): ?>
                                             <span class="badge badge-tersimpan">Tersimpan</span>
@@ -216,11 +225,14 @@ foreach ($semua_loker as $l) {
                                             <span class="badge badge-diambil">Sudah diambil</span>
                                         <?php endif; ?>
                                     </td>
+                                    <td style="text-align: center; white-space: nowrap;">
+                                        <a href="../DataBarang/verificationBarang.php?id=<?= $b['id_barang'] ?>" class="btn btn-sm btn-secondary">Verifikasi</a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" style="text-align: center; color: #9E988E; padding: 20px;">
+                                <td colspan="8" style="text-align: center; color: #9E988E; padding: 20px;">
                                     Belum ada data barang.
                                 </td>
                             </tr>

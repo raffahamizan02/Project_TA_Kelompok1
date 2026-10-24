@@ -520,3 +520,128 @@ tr:hover td {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* Tab Navigasi Rekap */
+.nav-tabs {
+    display: inline-flex;
+    align-items: center;
+    background-color: #FAF8F5;
+    border: 1px solid #D8D2C7;
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #6E6A63;
+    background-color: transparent;
+    border: 1px solid transparent;
+    transition: all 0.15s ease-in-out;
+}
+
+.tab-btn:hover {
+    color: #181715;
+    background-color: #EFECE4;
+}
+
+.tab-btn.active {
+    background-color: #FFFFFF;
+    color: #181715;
+    border-color: #D8D2C7;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    font-weight: bold;
+}
+
+/* Progress Kategori Barang */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.category-item {
+    background-color: #FAF8F5;
+    border: 1px solid #E8E3D9;
+    border-radius: 6px;
+    padding: 10px 14px;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.category-header strong {
+    color: #181715;
+}
+
+.category-header span {
+    color: #6E6A63;
+    font-size: 12px;
+}
+
+.category-bar {
+    width: 100%;
+    height: 7px;
+    background-color: #EFECE4;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.category-fill {
+    height: 100%;
+    background-color: #E04F16;
+    border-radius: 4px;
+}
+
+/* Cetak / Print Styles */
+@media print {
+    body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        padding: 0 !important;
+    }
+    .sidebar, .topbar, .filter-bar, .nav-tabs, .btn, .no-print {
+        display: none !important;
+    }
+    .layout {
+        display: block !important;
+    }
+    .content {
+        padding: 0 !important;
+    }
+    .card {
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 16px !important;
+    }
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+    th, td {
+        border: 1px solid #CCCCCC !important;
+        padding: 6px 8px !important;
+        color: #000000 !important;
+    }
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #000000;
+    }
+}

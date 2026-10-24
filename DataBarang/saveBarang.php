@@ -116,6 +116,10 @@ foreach ($daftar_barang as $nama_item) {
         VALUES 
         ('$kode_barang', '$id_siswa', '$id_loker', '$nama_bersih', '$nama_file_foto', NOW(), 'Tersimpan', NULL)");
     
+    $id_baru = mysqli_insert_id($koneksi);
+    @mysqli_query($koneksi, "INSERT INTO log_aktivitas (id_admin, aksi, id_barang_terkait, keterangan, waktu) 
+        VALUES (1, 'Tambah', '$id_baru', 'Menambahkan barang $nama_bersih ($kode_barang)', NOW())");
+    
     $urutan++;
 }
 

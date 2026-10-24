@@ -3,10 +3,11 @@ require_once "connectBarang.php";
 
 $id = $_REQUEST['id'] ?? 0;
 
-$query = "SELECT b.*, u.nama_lengkap AS nama_siswa, u.username AS nis_siswa, l.nomor_loker, l.lokasi
+$query = "SELECT b.*, u.nama_lengkap AS nama_siswa, u.username AS nis_siswa, l.nomor_loker, g.nama_gedung AS lokasi
           FROM barang b
           LEFT JOIN users u ON b.id_siswa = u.id_user
           LEFT JOIN loker l ON b.id_loker = l.id_loker
+          LEFT JOIN gedung g ON l.id_gedung = g.id_gedung
           WHERE b.id_barang = '$id'";
 
 $hasil  = mysqli_query($koneksi, $query);
@@ -21,6 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['konfirmasi_ambil'])) 
     $id_loker = $barang['id_loker'];
 
     mysqli_query($koneksi, "UPDATE barang SET status = 'Sudah diambil', waktu_pengambilan = NOW() WHERE id_barang = '$id'");
+
+    $nama_verif = mysqli_real_escape_string($koneksi, $barang['nama_barang'] ?? 'Barang');
+    $kode_verif = $barang['kode_barang'] ?? '';
+    @mysqli_query($koneksi, "INSERT INTO log_aktivitas (id_admin, aksi, id_barang_terkait, keterangan, waktu) 
+        VALUES (1, 'Ubah', '$id', 'Verifikasi barang $nama_verif ($kode_verif) sudah diambil', NOW())");
 
     $cekSisa = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM barang WHERE id_loker = '$id_loker' AND status = 'Tersimpan'");
     $sisa    = mysqli_fetch_assoc($cekSisa)['total'];
